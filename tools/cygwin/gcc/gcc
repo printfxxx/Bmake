@@ -1,0 +1,69 @@
+#/bin/sh -e
+
+args=""
+mkdep=n
+depfile=""
+
+gcc=${1#host=}gcc
+shift
+
+null=$(cygpath -m /dev/null)
+
+winpath() {
+	cygpath $* | sed -e "s|$null|NUL|g"
+}
+
+win_dep_to_unix() {
+	[ -z $1 ] && exec 4<&1 || exec 4>$1
+	$gcc $args | sed -e 's|\s\+\\$||' -e 's|^\s\+||' -e 's|\s\+|\n|g' | \
+	winpath -f - | sed -e 's|$| \\|' -e '$s|\s\\||' >&4
+	[ "${PIPESTATUS[*]}" = "0 0 0 0" ]
+	ret=$?
+	exec 4<&-
+	[ $ret -ne 0 ] && [ ! -z $1 ] && rm -f $1
+	return $ret
+}
+
+while [ $# -ne 0 ]; do
+	case $1 in
+	-M|-MM)
+		mkdep=y
+		args="$args $1"
+		shift
+		;;
+	-MF)
+		shift
+		depfile=$(winpath -m $1)
+		shift
+		;;
+	-c|-o|-include|-imacros|-isystem|-isysroot|-T|-I|-L|@)
+		args="$args $1"
+		shift
+		args="$args $(winpath -m $1)"
+		shift
+		;;
+	-T*|-I*|-L*)
+		path=${1#-?}
+		args="$args ${1%$path}$(winpath -m $path)"
+		shift
+		;;
+	-Wl,-Map=*)
+		args="$args ${1%%=*}=$(winpath -m ${1#*=})"
+		shift
+		;;
+	-*)
+		args="$args $1"
+		shift
+		;;
+	*)
+		args="$args $(winpath -m $1)"
+		shift
+		;;
+	esac
+done
+
+if [ $mkdep = y ]; then
+	win_dep_to_unix $depfile
+else
+	$gcc $args
+fi

@@ -1,0 +1,27 @@
+#/bin/sh -e
+
+args=""
+
+objdump=${1#host=}objdump
+shift
+
+null=$(cygpath -m /dev/null)
+
+winpath() {
+	cygpath $* | sed -e "s|$null|NUL|g"
+}
+
+while [ $# -ne 0 ]; do
+	case $1 in
+	-*)
+		args="$args $1"
+		shift
+		;;
+	*)
+		args="$args $(winpath -m $1)"
+		shift
+		;;
+	esac
+done
+
+$objdump $args
