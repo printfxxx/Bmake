@@ -14,16 +14,18 @@
 
 # === Project Configuration ===
 # Project name
-project =
+project = Bmake
 
 # === Objs, subdirs, targets ===
-obj =
+obj = src1/ src2/
 # === Output Target ===
-out =
+out = demo1$(SFX_EXE) demo2$(SFX_EXE)
+demo1$(SFX_EXE) = src1/
+demo2$(SFX_EXE) = src2/
 
 # === Flags For Compiler & Linker ===
 # Flags to give to C compiler
-CFLAGS =
+CFLAGS = -g -Wall -Wextra
 # Flags to give to assembler
 ASFLAGS =
 # Flags to give to C++ compiler
