@@ -1,0 +1,9 @@
+mainmenu "Project Configuration"
+
+	config VAL1
+		int "Value 1"
+		default 1
+
+	config STR1
+		string "String 1"
+		default str

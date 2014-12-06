@@ -14,16 +14,19 @@
 
 # === Project Configuration ===
 # Project name
-project =
+project = Bmake
 
 # === Objs, subdirs, targets ===
-obj =
+obj = src/ autoconf.h
+cflags_autoconf.h  = -DVAL1=$(CONFIG_VAL1)
+cflags_autoconf.h += -DSTR1=$(call escape,$(CONFIG_STR1))
 # === Output Target ===
-out =
+out = $(project)$(SFX_EXE)
+$(project)$(SFX_EXE) = src/
 
 # === Flags For Compiler & Linker ===
 # Flags to give to C compiler
-CFLAGS =
+CFLAGS = -I$(gendir)
 # Flags to give to assembler
 ASFLAGS =
 # Flags to give to C++ compiler
@@ -33,7 +36,7 @@ LDFLAGS =
 
 # === Mconf Options ===
 # Mconf config file
-mcfg =
+mcfg = Kconfig/Kconfig
 
 # === Debugger Options ===
 # GDB command scripts
