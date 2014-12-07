@@ -14,10 +14,10 @@
 
 # === Project Configuration ===
 # Project name
-project =
+project = Bmake
 
 # === Objs, subdirs, targets ===
-obj =
+obj = km-kmod
 # === Output Target ===
 out =
 
