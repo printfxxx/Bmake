@@ -12,6 +12,13 @@
 # Brief		Main makefile for Bmake.
 #
 
+BASH := $(shell which bash)
+ifneq ($(BASH),)
+SHELL = $(BASH)
+else
+$(error BASH not found!)
+endif
+
 .DEFAULT_GOAL = all
 
 topdir	= $(CURDIR)/
@@ -76,6 +83,6 @@ EXTMF_SEG := R
 include $(EXTMF_LIST)
 EXTMF_SEG :=
 
-export topdir optdir MAKE
+export topdir optdir BASH MAKE
 
 .PHONY: all help clean distclean
