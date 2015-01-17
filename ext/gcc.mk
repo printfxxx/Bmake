@@ -45,7 +45,7 @@ STRIP	= $(host)strip
 LDFLAGS += $(LDFLAGS-y)
 ldflags  = $(LDFLAGS) $(ldflags-y)
 
-ifneq ($(shell $(LD) -V | sed -ne '/pep\{,1\}'$$/p),)
+ifneq ($(shell $(LD) -V | sed -ne '/Supported/,+1{/pep\{,1\}$$/p}'),)
 SFX_EXE = .exe
 endif
 
