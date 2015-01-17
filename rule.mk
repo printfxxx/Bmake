@@ -12,6 +12,7 @@
 # Brief		Rules in each directories.
 #
 
+SHELL = $(BASH)
 include $(topdir)func.mk
 
 # Extract all leafs recursively
