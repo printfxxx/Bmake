@@ -17,9 +17,10 @@ ifeq ($(EXTR_SEG),V)
 define rule_kmod
 $(PFX_KM)$(1) ?= $(1)$(SFX_KO)
 $(OLST): $$($(PFX_KM)$(1):%=$(optdir)%)
-$$($(PFX_KM)$(1):%=$(1)/$(bdir)%): build-$(1)
-$$($(PFX_KM)$(1):%=$(optdir)%): $(optdir)%: $(1)/$(bdir)%
+$$($(PFX_KM)$(1):%=$(optdir)%): $$($(PFX_KM)$(1):%=$(1)/$(bdir)%)
+	$(call msg,GEN,$$(@F))
 	cp $$< $$@
+$$($(PFX_KM)$(1):%=$(1)/$(bdir)%): build-$(1);
 endef
 
 PFX_KM = km-
