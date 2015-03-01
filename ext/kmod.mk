@@ -28,7 +28,7 @@ SFX_KO = .ko
 
 KMOD = $(patsubst $(PFX_KM)%,%,$(filter $(PFX_KM)%,$(obj)))
 
-kdir ?= /lib/modules/$(shell uname -r)/build
+KDIR ?= /lib/modules/$(shell uname -r)/build
 
 endif	# ifeq ($(EXTR_SEG),V)
 
@@ -45,6 +45,6 @@ $(KMOD:%=%/$(bdir)Kbuild): %/$(bdir)Kbuild: %/Kbuild
 $(KMOD:%=build-%): build-%: %/$(bdir)Kbuild FORCE
 	$(call msg,KBUILD,$*)
 	unset host MAKEFLAGS MAKEFILES CFLAGS ASFLAGS && CROSS_COMPILE=$(CROSS_COMPILE) \
-	$(MAKE) -C $(kdir) M=`readlink -m $(@:build-%=%)/$(bdir)` V=$(V) modules
+	$(MAKE) -C $(KDIR) M=`readlink -m $(@:build-%=%)/$(bdir)` V=$(V) modules
 
 endif	# ifeq ($(EXTR_SEG),R)
