@@ -28,8 +28,6 @@ SFX_KO = .ko
 
 KMOD = $(patsubst $(PFX_KM)%,%,$(filter $(PFX_KM)%,$(obj)))
 
-CROSS_COMPILE ?= $(host)
-
 kdir ?= /lib/modules/$(shell uname -r)/build
 
 endif	# ifeq ($(EXTR_SEG),V)
