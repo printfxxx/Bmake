@@ -34,6 +34,7 @@ BIN   = $(LDOUT:%=%$(SFX_BIN))
 HEX   = $(LDOUT:%=%$(SFX_HEX))
 SREC  = $(LDOUT:%=%$(SFX_SREC))
 
+host   ?= $(CROSS_COMPILE)
 CC	= $(host)gcc
 AR	= $(host)ar
 LD	= $(host)ld
