@@ -71,6 +71,8 @@ $(foreach f,$(ldout),$(eval $(optdir)$(f): $(olst_$(f))))
 $(foreach f,$(ldout),$(eval $(optdir)$(f): ldflags += $(ldflags_$(f))))
 endif
 
+%$(OLST): $(OLST);
+
 $(ldout:%=$(bdir)%$(SFX_CMD)): $(bdir)%$(SFX_CMD): $(OLST) FORCE
 	$(call cmd_change_chk,$(call do_ldout,$(objs_$*),$(olst_$*),$(optdir)$*,$(ldflags)),$@)
 
