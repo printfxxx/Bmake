@@ -16,7 +16,7 @@ ifeq ($(EXTMF_SEG),V)
 
 # Link all module files into target file
 define do_ldout
-$(strip $(CC) $(1) $(shell cat $(2) /dev/null) -o $(3) $(4) -Wl,-Map=$(3)$(SFX_MAP))
+$(strip $(CC) $(1) -o $(2) $(3) -Wl,-Map=$(2)$(SFX_MAP))
 endef
 
 SFX_H	 = .h
@@ -74,12 +74,12 @@ endif
 
 %$(OLST): $(OLST);
 
-$(ldout:%=$(bdir)%$(SFX_CMD)): $(bdir)%$(SFX_CMD): $(OLST) FORCE
-	$(call cmd_change_chk,$(call do_ldout,$(objs_$*),$(olst_$*),$(optdir)$*,$(ldflags)),$@)
+$(ldout:%=$(bdir)%$(SFX_CMD)): $(bdir)%$(SFX_CMD): FORCE
+	$(call cmd_change_chk,$(call do_ldout,$(objs_$*) `cat $(olst_$*) /dev/null`,$(optdir)$*,$(ldflags)),$@)
 
 $(LDOUT): $(optdir)%: $(bdir)%$(SFX_CMD)
 	$(call msg,LD,$*)
-	$(call do_ldout,$(objs_$*),$(olst_$*),$@,$(ldflags))
+	$(call do_ldout,$(objs_$*) `cat $(olst_$*) /dev/null`,$@,$(ldflags))
 
 $(DIS):
 	$(call msg,DIS,$(@:$(optdir)%=%))
@@ -123,7 +123,7 @@ $(strip $(CC) -c $(1) -o $(2) $(3))
 endef
 # Generate depend
 define do_cc_dep
-$(strip $(CC) $(1) -M -MF $(2) -MT $(3) $(4) 2>/dev/null) || $(RM) $(2)
+$(strip $(CC) $(1) -M -MF $(2) -MT $(3) $(4) 2>/dev/null || ($(RM) $(2); false))
 endef
 # Relink obj
 define do_robj
@@ -139,7 +139,7 @@ $(strip $(CC) -fPIC -shared $(1) -o $(2))
 endef
 # Generate obj list
 define do_olst
-$(strip (for f in $(1); do echo $$f; done && cat $(2) /dev/null) > $@ || ($(RM) $@; false))
+$(strip for f in $(1); do echo $$f; done > $(2) || ($(RM) $(2); false))
 endef
 # Rule for generate depend
 define rule_cc_dep
@@ -183,12 +183,10 @@ ifeq ($(EXTR_SEG),R)
 
 ifeq ($(filter $(NOINIT_TARGET),$(MAKECMDGOALS)),)
 $(shell mkdir -p $(addprefix $(bdir),$(sort $(dir $(NODE) $(LEAF)) ./)))
-
 $(foreach m,$(MOD),$(foreach f,$(call extract_all_leaf,$(m)), \
 	$(eval cflags_$(f) += -DMOD_NAME=\"$(m)\" -DOBJ_NAME=\"$(f)\")))
 $(foreach f,$(call extract_all_leaf,$(DLIB)),$(eval cflags_$(f) += -fPIC))
 $(foreach f,$(OBJ),$(eval $(bdir)$(f): cflags += $(cflags_$(f))))
-
 $(foreach f,$(ROBJ) $(SLIB) $(DLIB),$(eval $(bdir)$(f): $($(f):%=$(bdir)%)))
 endif
 
@@ -214,13 +212,15 @@ $(DLIB:%=$(bdir)%): $(bdir)%: $(bdir)%$(SFX_CMD)
 	$(call do_dlib,$($*:%=$(bdir)%),$@)
 
 $(OLST)$(SFX_CMD): FORCE
-	$(call cmd_change_chk,$(call do_olst,$(MOD:%=$(reldir)$(bdir)%),$(SOLST)),$@)
+	$(call cmd_change_chk,$(call do_olst,$(MOD:%=$(reldir)$(bdir)%) `cat $(SOLST) /dev/null`,$(OLST)),$@)
 
 $(OLST): $(MOD:%=$(bdir)%) $(SOLST) $(OLST)$(SFX_CMD)
-	$(call do_olst,$(MOD:%=$(reldir)$(bdir)%),$(SOLST))
+	$(call do_olst,$(MOD:%=$(reldir)$(bdir)%) `cat $(SOLST) /dev/null`,$@)
 
-$(SOLST): FORCE
-	$(call msg2,CD,$(@:%$(OLST)=%))
-	$(MAKE) -f $(topdir)rule.mk -C $(@:%$(OLST)=%) $(OLST)
+$(SOLST): %/$(OLST): build-%;
+
+$(SOLST:%/$(OLST)=build-%): build-%: FORCE
+	$(call msg2,CD,$*/)
+	$(MAKE) -f $(topdir)rule.mk -C $* $(OLST)
 
 endif	# ifeq ($(EXTR_SEG),R)
