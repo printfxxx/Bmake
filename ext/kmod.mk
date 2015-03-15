@@ -43,8 +43,8 @@ $(KMOD:%=%/$(bdir)Kbuild): %/$(bdir)Kbuild: %/Kbuild
 	ln -sf `readlink -m $<` $@
 
 $(KMOD:%=build-%): build-%: %/$(bdir)Kbuild FORCE
-	$(call msg,KBUILD,$*)
+	$(call msg,KBUILD,$*/)
 	unset host MAKEFLAGS MAKEFILES CFLAGS ASFLAGS && CROSS_COMPILE=$(CROSS_COMPILE) \
-	$(MAKE) -C $(KDIR) M=`readlink -m $(@:build-%=%)/$(bdir)` V=$(V) modules
+	$(MAKE) -C $(KDIR) M=`readlink -m $*/$(bdir)` V=$(V) modules
 
 endif	# ifeq ($(EXTR_SEG),R)
