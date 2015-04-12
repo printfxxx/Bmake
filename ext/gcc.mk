@@ -123,7 +123,7 @@ $(strip $(CC) -c $(1) -o $(2) $(3))
 endef
 # Generate depend
 define do_cc_dep
-$(strip $(CC) $(1) -M -MF $(2) -MT $(3) $(4) 2>/dev/null || ($(RM) $(2); false))
+$(strip $(CC) $(1) -M -MF $(2) -MT $(3) $(4) || ($(RM) $(2); false))
 endef
 # Relink obj
 define do_robj
@@ -146,7 +146,7 @@ define rule_cc_dep
 sinclude $(2)$(SFX_D)
 
 $(2)$(SFX_D): $(1)
-	$(call do_cc_dep,$$<,$$@,$(2),$(3))
+	$(call do_cc_dep,$$<,$$@,$(2),$(3)) || ($(call err,GEN,$$(@:$(bdir)%=%)); false)
 endef
 
 SFX_C	= .c
