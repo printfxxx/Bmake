@@ -31,7 +31,7 @@ ifeq ($(filter $(NOINIT_TARGET),$(MAKECMDGOALS)),)
 $(shell mkdir -p $(addprefix $(gendir),$(sort $(dir $(HDR)) ./)))
 endif
 
-$(OBJ:%=$(bdir)%) $(SOLST): $(HDR:%=$(gendir)%)
+$(OBJ:%=$(bdir)%) $(DIR:%=build-%): $(HDR:%=$(gendir)%)
 
 $(HDR:%=$(bdir)%$(SFX_CMD)): $(bdir)%$(SFX_CMD): FORCE
 	$(call cmd_change_chk,$(call do_hdr,$(gendir)$*,$(cflags_$*)),$@)
