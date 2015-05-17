@@ -20,6 +20,10 @@ endif	# ifeq ($(EXTMF_SEG),V)
 
 ifeq ($(EXTR_SEG),V)
 
+define cc_cmd_wrapper
+$(call $(1),$(2),$(bdir)$(3),$(ccflags) $(cflags_$(3)))
+endef
+
 CSRC = $(wildcard $(OBJ:%$(SFX_O)=%$(SFX_C)))
 COBJ = $(CSRC:%$(SFX_C)=%$(SFX_O))
 
@@ -31,16 +35,16 @@ endif	# ifeq ($(EXTR_SEG),V)
 ifeq ($(EXTR_SEG),R)
 
 ifeq ($(filter $(NOINIT_TARGET),$(MAKECMDGOALS)),)
-$(foreach f,$(CSRC),$(eval $(call rule_cc_dep,$(f),$(f:%$(SFX_C)=$(bdir)%$(SFX_O)),$$(ccflags))))
+$(foreach f,$(CSRC),$(eval $(call cc_cmd_wrapper,rule_cc_dep,$(f),$(f:%$(SFX_C)=%$(SFX_O)))))
 endif
 
 $(COBJ:%=$(bdir)%$(SFX_D)): %$(SFX_D): %$(SFX_CMD)
 
 $(COBJ:%=$(bdir)%$(SFX_CMD)): $(bdir)%$(SFX_CMD): FORCE
-	$(call cmd_change_chk,$(call do_cc,$(*:%$(SFX_O)=%$(SFX_C)),$(bdir)$*,$(ccflags)),$@)
+	$(call cmd_change_chk,$(call cc_cmd_wrapper,do_cc,$(*:%$(SFX_O)=%$(SFX_C)),$*),$@)
 
 $(COBJ:%=$(bdir)%): $(bdir)%: $(bdir)%$(SFX_D)
 	$(call msg,CC,$(*:%$(SFX_O)=%$(SFX_C)))
-	$(call do_cc,$(*:%$(SFX_O)=%$(SFX_C)),$@,$(ccflags))
+	$(call cc_cmd_wrapper,do_cc,$(*:%$(SFX_O)=%$(SFX_C)),$*)
 
 endif	# ifeq ($(EXTR_SEG),V)
