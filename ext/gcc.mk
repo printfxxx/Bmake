@@ -121,10 +121,6 @@ ifeq ($(EXTR_SEG),V)
 define do_cc
 $(strip $(CC) -c $(1) -o $(2) $(3))
 endef
-# Generate depend
-define do_cc_dep
-$(strip $(CC) $(1) -M -MF $(2) -MT $(3) $(4) || ($(RM) $(2); false))
-endef
 # Relink obj
 define do_robj
 $(strip $(LD) -r $(1) -o $(2))
@@ -144,9 +140,11 @@ endef
 # Rule for generate depend
 define rule_cc_dep
 sinclude $(2)$(SFX_D)
+_$(2)_deps = $$(wildcard $$($(2)_deps))
 
-$(2)$(SFX_D): $(1)
-	$(call do_cc_dep,$$<,$$@,$(2),$(3)) || ($(call err,GEN,$$(@:$(bdir)%=%)); false)
+$(2)$(SFX_D): $(1) $$(if $$(filter-out $$(_$(2)_deps),$$($(2)_deps)),FORCE,$$(_$(2)_deps))
+	$(CC) $$< -M -MT $(2)_deps $(3) | sed -e '1s|:| =|' > $$@; \
+	[ "$$$${PIPESTATUS[*]}" == "0 0" ] || ($(RM) $$@; $(call err,GEN,$$(@:$(bdir)%=%)); false)
 endef
 
 SFX_C	= .c
@@ -186,7 +184,6 @@ $(shell mkdir -p $(addprefix $(bdir),$(sort $(dir $(NODE) $(LEAF)) ./)))
 $(foreach m,$(MOD),$(foreach f,$(call extract_all_leaf,$(m)), \
 	$(eval cflags_$(f) += -DMOD_NAME=\"$(m)\" -DOBJ_NAME=\"$(f)\")))
 $(foreach f,$(call extract_all_leaf,$(DLIB)),$(eval cflags_$(f) += -fPIC))
-$(foreach f,$(OBJ),$(eval $(bdir)$(f): cflags += $(cflags_$(f))))
 $(foreach f,$(ROBJ) $(SLIB) $(DLIB),$(eval $(bdir)$(f): $($(f):%=$(bdir)%)))
 endif
 
