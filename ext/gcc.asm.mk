@@ -14,21 +14,22 @@
 
 ifeq ($(EXTMF_SEG),V)
 
-export ASFLAGS
+export ASFLAGS ASFLAGS-y
 
 endif	# ifeq ($(EXTMF_SEG),V)
 
 ifeq ($(EXTR_SEG),V)
 
 define as_cmd_wrapper
-$(call $(1),$(2),$(bdir)$(3),$(asflags) $(cflags_$(3)))
+$(call $(1),$(2),$(bdir)$(3),$(_cflags) $(_asflags) $(cflags_$(3)))
 endef
 
 ASRC = $(wildcard $(OBJ:%$(SFX_O)=%$(SFX_ASM)))
 AOBJ = $(ASRC:%$(SFX_ASM)=%$(SFX_O))
 
-ASFLAGS += $(ASFLAGS-y)
-asflags  = $(cflags) $(ASFLAGS) $(asflags-y)
+_ASFLAGS = $(ASFLAGS) $(ASFLAGS-y)
+asflags  = $(_ASFLAGS)
+_asflags = $(asflags) $(asflags-y)
 
 endif	# ifeq ($(EXTR_SEG),V)
 

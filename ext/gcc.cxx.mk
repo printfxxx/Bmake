@@ -14,21 +14,22 @@
 
 ifeq ($(EXTMF_SEG),V)
 
-export CXXFLAGS
+export CXXFLAGS CXXFLAGS-y
 
 endif	# ifeq ($(EXTMF_SEG),V)
 
 ifeq ($(EXTR_SEG),V)
 
 define cxx_cmd_wrapper
-$(call $(1),$(2),$(bdir)$(3),$(cxxflags) $(cflags_$(3)))
+$(call $(1),$(2),$(bdir)$(3),$(_cflags) $(_cxxflags) $(cflags_$(3)))
 endef
 
 CXXSRC = $(wildcard $(OBJ:%$(SFX_O)=%$(SFX_CXX)))
 CXXOBJ = $(CXXSRC:%$(SFX_CXX)=%$(SFX_O))
 
-CXXFLAGS += $(CXXFLAGS-y)
-cxxflags  = $(cflags) $(CXXFLAGS) $(cxxflags-y)
+_CXXFLAGS = $(CXXFLAGS) $(CXXFLAGS-y)
+cxxflags  = $(_CXXFLAGS)
+_cxxflags = $(cxxflags) $(cxxflags-y)
 
 endif	# ifeq ($(EXTR_SEG),V)
 

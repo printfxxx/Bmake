@@ -14,21 +14,22 @@
 
 ifeq ($(EXTMF_SEG),V)
 
-export CCFLAGS
+export CCFLAGS CCFLAGS-y
 
 endif	# ifeq ($(EXTMF_SEG),V)
 
 ifeq ($(EXTR_SEG),V)
 
 define cc_cmd_wrapper
-$(call $(1),$(2),$(bdir)$(3),$(ccflags) $(cflags_$(3)))
+$(call $(1),$(2),$(bdir)$(3),$(_cflags) $(_ccflags) $(cflags_$(3)))
 endef
 
 CSRC = $(wildcard $(OBJ:%$(SFX_O)=%$(SFX_C)))
 COBJ = $(CSRC:%$(SFX_C)=%$(SFX_O))
 
-CCFLAGS += $(CCFLAGS-y)
-ccflags  = $(cflags) $(CCFLAGS) $(ccflags-y)
+_CCFLAGS = $(CCFLAGS) $(CCFLAGS-y)
+ccflags  = $(_CCFLAGS)
+_ccflags = $(ccflags) $(ccflags-y)
 
 endif	# ifeq ($(EXTR_SEG),V)
 
