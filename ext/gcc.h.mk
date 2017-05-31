@@ -21,7 +21,7 @@ echo -e "#ifndef _$(notdir $(1))_\n#define _$(notdir $(1))_\n" | sed -e "s/\s.*/
 [ "$${PIPESTATUS[*]}" == "0 0" ] && echo -e "\n#endif") > $(1) || ($(RM) $(1); false))
 endef
 
-HDR = $(filter %$(SFX_H),$(obj))
+HDR = $(filter %$(SFX_H),$(_obj))
 
 endif	# ifeq ($(EXTMF_SEG),V)
 
@@ -31,7 +31,7 @@ ifeq ($(filter $(NOINIT_TARGET),$(MAKECMDGOALS)),)
 $(shell mkdir -p $(addprefix $(gendir),$(sort $(dir $(HDR)) ./)))
 endif
 
-$(OBJ:%=$(bdir)%) $(DIR:%=build-%): $(HDR:%=$(gendir)%)
+$(OBJ:%=$(bdir)%) $(DIR:%/=build-%): $(HDR:%=$(gendir)%)
 
 $(HDR:%=$(bdir)%$(SFX_CMD)): $(bdir)%$(SFX_CMD): FORCE
 	$(call cmd_change_chk,$(call do_hdr,$(gendir)$*,$(cflags_$*)),$@)
