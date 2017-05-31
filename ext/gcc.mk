@@ -19,15 +19,19 @@ define do_ldout
 $(strip $(CC) $(1) -o $(2) $(3) -Wl,-Map=$(2)$(SFX_MAP))
 endef
 
+define ldout_cmd_wrapper
+$(call $(1),$(2),$(optdir)$(3),$(_ldflags) $(ldflags_$(3)))
+endef
+
 SFX_H	 = .h
 SFX_MAP  = .map
 SFX_BIN  = .bin
 SFX_HEX  = .hex
 SFX_SREC = .srec
 
-out  += $(out-y)
-ldout = $(foreach f,$(out),$(if $($(f)),$(f),))
-OUT   = $(out:%=$(optdir)%)
+_out  = $(out) $(out-y)
+ldout = $(foreach f,$(_out),$(if $($(f)),$(f),))
+OUT   = $(_out:%=$(optdir)%)
 LDOUT = $(ldout:%=$(optdir)%)
 DIS   = $(LDOUT:%=%$(SFX_ASM))
 BIN   = $(LDOUT:%=%$(SFX_BIN))
@@ -43,8 +47,9 @@ OBJDUMP = $(host)objdump
 OBJCOPY = $(host)objcopy
 STRIP	= $(host)strip
 
-LDFLAGS += $(LDFLAGS-y)
-ldflags  = $(LDFLAGS) $(ldflags-y)
+_LDFLAGS = $(LDFLAGS) $(LDFLAGS-y)
+ldflags  = $(_LDFLAGS)
+_ldflags = $(ldflags) $(ldflags-y)
 
 ifneq ($(shell $(LD) -V | sed -ne '/Supported/,+1{/pep\{,1\}$$/p}'),)
 SFX_EXE = .exe
@@ -69,17 +74,16 @@ $(foreach f,$(ldout),$(eval objs_$(f) = $(filter-out %/,$($(f)))))
 $(foreach f,$(ldout),$(eval olst_$(f) = $(addsuffix $(OLST),$(filter %/,$($(f))))))
 $(foreach f,$(ldout),$(eval $(optdir)$(f): $(objs_$(f))))
 $(foreach f,$(ldout),$(eval $(optdir)$(f): $(olst_$(f))))
-$(foreach f,$(ldout),$(eval $(optdir)$(f): ldflags += $(ldflags_$(f))))
 endif
 
 %$(OLST): $(OLST);
 
 $(ldout:%=$(bdir)%$(SFX_CMD)): $(bdir)%$(SFX_CMD): FORCE
-	$(call cmd_change_chk,$(call do_ldout,$(objs_$*) `cat $(olst_$*) /dev/null`,$(optdir)$*,$(ldflags)),$@)
+	$(call cmd_change_chk,$(call ldout_cmd_wrapper,do_ldout,$(objs_$*) `cat $(olst_$*) /dev/null`,$*),$@)
 
 $(LDOUT): $(optdir)%: $(bdir)%$(SFX_CMD)
 	$(call msg,LD,$*)
-	$(call do_ldout,$(objs_$*) `cat $(olst_$*) /dev/null`,$@,$(ldflags))
+	$(call ldout_cmd_wrapper,do_ldout,$(objs_$*) `cat $(olst_$*) /dev/null`,$*)
 
 $(DIS):
 	$(call msg,DIS,$(@:$(optdir)%=%))
@@ -157,9 +161,9 @@ SFX_SO	= .so
 SFX_LDS = .ld
 SFX_CMD = .cmd
 
-obj += $(obj-y)
-DIR  = $(filter %/,$(obj))
-MOD  = $(filter %$(SFX_O) %$(SFX_A) %$(SFX_SO),$(obj))
+_obj = $(obj) $(obj-y)
+DIR  = $(filter %/,$(_obj))
+MOD  = $(filter %$(SFX_O) %$(SFX_A) %$(SFX_SO),$(_obj))
 LEAF = $(call extract_all_leaf,$(MOD))
 NODE = $(call extract_all_node,$(MOD))
 
@@ -170,10 +174,11 @@ DLIB  = $(filter %$(SFX_SO),$(NODE))
 OLST  = $(bdir)objs
 SOLST = $(DIR:%=%$(OLST))
 
-CFLAGS += $(CFLAGS-y)
-cflags	= $(CFLAGS) $(cflags-y)
+_CFLAGS = $(CFLAGS) $(CFLAGS-y)
+cflags  = $(_CFLAGS)
+_cflags = $(cflags) $(cflags-y)
 
-export CFLAGS
+export CFLAGS CFLAGS-y
 
 endif	# ifeq ($(EXTR_SEG),V)
 

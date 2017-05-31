@@ -17,13 +17,13 @@ ifeq ($(EXTMF_SEG),V)
 # Doxygen command
 DOX = doxygen
 
-doxcfg += $(doxcfg-y)
+_doxcfg = $(doxcfg) $(doxcfg-y)
 
 endif	# ifeq ($(EXTMF_SEG),V)
 
 ifeq ($(EXTMF_SEG),R)
 
-dox: $(doxcfg)
+dox: $(_doxcfg)
 	$(call msg,DOX,$^)
 	cat $^ | $(DOX) -
 

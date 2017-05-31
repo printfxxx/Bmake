@@ -19,21 +19,21 @@ GDB  = $(host)gdb
 CGDB = cgdb
 DDD  = ddd
 
-gdbrc += $(gdbrc-y)
+_gdbrc = $(gdbrc) $(gdbrc-y)
 
 endif	# ifeq ($(EXTR_SEG),V)
 
 ifeq ($(EXTMF_SEG),R)
 
-gdb: $(gdbrc)
+gdb: $(_gdbrc)
 	$(call msg,DBG,$^)
 	$(GDB) -d $(topdir) $(^:%= -x %)
 
-cgdb: $(gdbrc)
+cgdb: $(_gdbrc)
 	$(call msg,DBG,$^)
 	$(CGDB) -d $(GDB) -- -d $(topdir) $(^:%= -x %)
 
-ddd: $(gdbrc)
+ddd: $(_gdbrc)
 	$(call msg,DBG,$^)
 	$(DDD) --debugger $(GDB) -d $(topdir) $(^:%= -x %)
 
