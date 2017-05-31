@@ -26,7 +26,7 @@ endef
 PFX_KM = km-
 SFX_KO = .ko
 
-KMOD = $(patsubst $(PFX_KM)%,%,$(filter $(PFX_KM)%,$(obj)))
+KMOD = $(patsubst $(PFX_KM)%,%,$(filter $(PFX_KM)%,$(_obj)))
 
 KDIR ?= /lib/modules/$(shell uname -r)/build
 
