@@ -14,6 +14,7 @@
 
 ifeq ($(EXTMF_SEG),V)
 
+MCONF	  ?= mconf
 MCONF_CFG  = .config
 MAKEFILES += $(topdir)$(MCONF_CFG)
 
@@ -25,14 +26,14 @@ endif	# ifeq ($(EXTMF_SEG),V)
 
 ifeq ($(EXTMF_SEG),R)
 
-ifeq ($(filter $(NOINIT_TARGET),$(MAKECMDGOALS)),)
+ifeq ($(filter $(NOMCFG_TARGET) $(NOINIT_TARGET),$(MAKECMDGOALS)),)
 ifeq ($(if $(mcfg),$(wildcard $(MCONF_CFG)),x),)
 $(error Please run configurator ("make mconf") first!)
 endif
 endif
 
 mconf:
-	mconf $(mcfg)
+	$(MCONF) $(mcfg)
 
 distclean::
 	$(call msg,RM,mconf configuration)
